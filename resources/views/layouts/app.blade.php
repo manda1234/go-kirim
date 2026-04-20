@@ -298,6 +298,73 @@
                 transform: translate(-50%, 0);
             }
         }
+
+/* Popup */
+.swal-popup-custom {
+  border-radius: 24px !important;
+  padding: 28px 20px 20px !important;
+  width: 92% !important;
+  max-width: 360px !important;
+  font-family: inherit !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15) !important;
+}
+
+/* Sembunyikan icon default SweetAlert */
+.swal-icon-custom {
+  border: none !important;
+  margin-bottom: 0 !important;
+}
+.swal-icon-custom .swal2-icon-content { font-size: unset !important; }
+
+/* Tombol aksi */
+.swal-actions-custom {
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin-top: 20px !important;
+}
+
+.swal-confirm-custom {
+  width: 100% !important;
+  background: #15803d !important;
+  border-radius: 14px !important;
+  padding: 14px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+  transition: background 0.15s, transform 0.1s !important;
+  letter-spacing: 0.01em !important;
+}
+.swal-confirm-custom:hover { background: #166534 !important; }
+.swal-confirm-custom:active { transform: scale(0.98) !important; }
+
+.swal-cancel-custom {
+  width: 100% !important;
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-radius: 14px !important;
+  padding: 12px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+.swal-cancel-custom:hover { background: #e2e8f0 !important; }
+
+/* Animasi masuk/keluar */
+@keyframes swalSlideUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes swalSlideDown {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(40px) scale(0.97); }
+}
+.swal-slide-up  { animation: swalSlideUp  0.3s cubic-bezier(.32,.72,0,1) forwards; }
+.swal-slide-down{ animation: swalSlideDown 0.2s ease forwards; }
+
+
+
     </style>
 
     @stack('styles')

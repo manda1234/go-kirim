@@ -9,6 +9,7 @@
   <a href="{{ route('admin.bonus.index') }}" class="sidebar-link"><i class="fas fa-trophy w-5"></i> Bonus Performa</a>
   <a href="{{ route('admin.rates') }}" class="sidebar-link"><i class="fas fa-cog w-5"></i> Setting Tarif</a>
   <a href="{{ route('admin.settings') }}" class="sidebar-link"><i class="fas fa-qrcode w-5"></i> Setting QRIS</a>
+
 @endsection
 
 @section('bottom-nav')

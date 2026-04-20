@@ -413,26 +413,101 @@
           </div>
         </div>
 
-        {{-- ── ACTION BUTTON: berganti otomatis sesuai status ── --}}
-        @if($nextLabel)
-        <form method="POST"
-              action="{{ route('mitra.order.update-status', $activeOrder->id) }}"
-              onsubmit="return confirm('{{ addslashes($nextLabel) }}?\n\nLanjutkan?')">
-          @csrf
-          @method('PATCH')
-          <button type="submit"
-                  class="w-full text-white font-bold py-3 rounded-xl transition-all
-                         flex items-center justify-center gap-2 text-xs sm:text-sm active:scale-95"
-                  style="background:#16a34a">
-            <i class="fas {{ $actionIcon }}"></i> {{ $nextLabel }}
-          </button>
-        </form>
-        @else
-        <div class="text-center py-2 rounded-xl text-xs font-bold"
-             style="background:#f0fdf4;color:#16a34a">
-          ✅ Pesanan Selesai
-        </div>
-        @endif
+    {{-- ── ACTION BUTTON ── --}}
+@if($nextLabel)
+
+<button type="button"
+        onclick="confirmAction()"
+        class="w-full flex items-center justify-center gap-2 py-3.5 px-4
+               rounded-2xl font-semibold text-sm text-white transition-all
+               active:scale-[0.98] hover:brightness-110"
+        style="background:#15803d">
+  <i class="fas {{ $actionIcon }}"></i>
+  {{ $nextLabel }}
+</button>
+
+{{-- Form tersembunyi, di-submit via JS --}}
+<form id="order-action-form"
+      method="POST"
+      action="{{ route('mitra.order.update-status', $activeOrder->id) }}"
+      class="hidden">
+  @csrf
+  @method('PATCH')
+</form>
+
+<script>
+function confirmAction() {
+  Swal.fire({
+    title: '<span style="font-size:17px;font-weight:700;color:#0f172a">{{ addslashes($nextLabel) }}?</span>',
+    html: '<span style="font-size:13px;color:#64748b;line-height:1.6">Pesanan akan segera diproses dan<br>pelanggan akan mendapat notifikasi.</span>',
+    iconHtml: `
+      <div style="width:64px;height:64px;border-radius:50%;background:#f0fdf4;
+                  border:2px solid #bbf7d0;display:flex;align-items:center;
+                  justify-content:center;margin:0 auto">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="15" height="13" rx="2"/>
+          <path d="M16 8h4l3 3v5h-7V8z"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>`,
+    showCancelButton: true,
+    confirmButtonText: '✓ &nbsp;Ya, Proses Sekarang',
+    cancelButtonText: 'Batalkan',
+    reverseButtons: true,
+    focusConfirm: false,
+
+    {{-- ── Custom class ── --}}
+    customClass: {
+      popup:          'swal-popup-custom',
+      title:          'swal-title-custom',
+      htmlContainer:  'swal-html-custom',
+      icon:           'swal-icon-custom',
+      actions:        'swal-actions-custom',
+      confirmButton:  'swal-confirm-custom',
+      cancelButton:   'swal-cancel-custom',
+    },
+
+    showClass: {
+      popup: 'swal-slide-up'
+    },
+    hideClass: {
+      popup: 'swal-slide-down'
+    },
+
+  }).then((result) => {
+    if (result.isConfirmed) {
+      {{-- Tampilkan loading di tombol utama --}}
+      Swal.fire({
+        title: '<span style="font-size:15px;font-weight:600;color:#0f172a">Memproses...</span>',
+        html: '<span style="font-size:12px;color:#64748b">Mohon tunggu sebentar</span>',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        customClass: { popup: 'swal-popup-custom' },
+        didOpen: () => { Swal.showLoading() }
+      });
+      document.getElementById('order-action-form').submit();
+    }
+  });
+}
+</script>
+
+@else
+
+<div class="flex items-center justify-center gap-2 py-3.5 rounded-2xl
+            text-sm font-semibold"
+     style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2.5"
+       stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+  Pesanan Selesai
+</div>
+
+@endif
+
 
         {{-- Cancel button --}}
         @if($activeOrder->isCancellable())

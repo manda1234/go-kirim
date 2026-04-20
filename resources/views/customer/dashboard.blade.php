@@ -100,7 +100,7 @@
 
         .qaction:hover {
             background: rgba(255, 255, 255, .22);
-        }
+        } 
 
         .qaction:active {
             transform: scale(.96);

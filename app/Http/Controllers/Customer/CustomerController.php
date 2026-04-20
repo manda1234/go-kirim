@@ -91,6 +91,8 @@ class CustomerController extends Controller
             'notes' => 'nullable|string|max:500',
             'distance_km' => 'required|numeric|min:0.1',
             'payment_method' => 'required|in:cash,transfer,e_wallet,qris',
+            'bank_selected'    => 'nullable|string', // ← tambahkan ini
+'ewallet_selected' => 'nullable|string', // ← dan ini
             'passengers' => 'nullable|integer|min:1|max:10',
             'food_items' => 'nullable|array',
             'food_items.*.name' => 'required_with:food_items|string',
@@ -133,6 +135,9 @@ class CustomerController extends Controller
                 'item_weight' => $validated['item_weight'] ?? null,
                 'notes' => $validated['notes'] ?? null,
                 'payment_method' => $validated['payment_method'],
+                'payment_method' => $validated['payment_method'],
+'bank_selected'    => $request->bank_selected ?? null,    // ← tambahkan ini
+'ewallet_selected' => $request->ewallet_selected ?? null, // ← dan ini
                 'distance_km' => $fare['distance_km'],
                 'distance_fare' => $fare['distance_fare'],
                 'base_fare' => $fare['base_fare'],

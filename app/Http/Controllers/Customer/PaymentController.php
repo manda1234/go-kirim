@@ -21,10 +21,10 @@ class PaymentController extends Controller
         abort_if($order->payment_method === 'cash', 404);
 
         return view('customer.payment', [
-            'order'    => $order,
+            'order' => $order,
             'qrisImage' => Setting::get('qris_image'),
-            'qrisNote'  => Setting::get('qris_note'),
-            'bankInfo'  => Setting::get('bank_info'),
+            'qrisNote' => Setting::get('qris_note'),
+            'bankInfo' => Setting::get('bank_info'),
         ]);
     }
 
@@ -37,11 +37,8 @@ class PaymentController extends Controller
         abort_if($order->isPaid(), 422, 'Pesanan sudah dikonfirmasi pembayarannya.');
 
         // Hanya transfer dan qris yang bisa upload bukti
-        abort_if(
-            !in_array($order->payment_method, ['transfer', 'qris']),
-            422,
-            'Metode pembayaran ini tidak memerlukan upload bukti.'
-        );
+        // Transfer, qris, dan e_wallet bisa upload bukti
+        abort_if(!in_array($order->payment_method, ['transfer', 'qris', 'e_wallet']), 422, 'Metode pembayaran ini tidak memerlukan upload bukti.');
 
         $request->validate(
             [
@@ -49,10 +46,10 @@ class PaymentController extends Controller
             ],
             [
                 'payment_proof.required' => 'Bukti pembayaran wajib diupload.',
-                'payment_proof.image'    => 'File harus berupa gambar (JPG/PNG).',
-                'payment_proof.mimes'    => 'Format file harus JPG atau PNG.',
-                'payment_proof.max'      => 'Ukuran file maksimal 3MB.',
-            ]
+                'payment_proof.image' => 'File harus berupa gambar (JPG/PNG).',
+                'payment_proof.mimes' => 'Format file harus JPG atau PNG.',
+                'payment_proof.max' => 'Ukuran file maksimal 3MB.',
+            ],
         );
 
         // Hapus bukti lama jika sudah ada
@@ -63,15 +60,12 @@ class PaymentController extends Controller
         $path = $request->file('payment_proof')->store('payment_proofs', 'public');
 
         $order->update([
-            'payment_proof'  => $path,
+            'payment_proof' => $path,
             'payment_status' => 'pending', // menunggu konfirmasi admin
         ]);
 
         $label = $order->payment_method === 'transfer' ? 'transfer' : 'QRIS';
 
-        return back()->with(
-            'success',
-            "Bukti pembayaran {$label} berhasil diupload! Admin akan segera memverifikasi."
-        );
+        return back()->with('success', "Bukti pembayaran {$label} berhasil diupload! Admin akan segera memverifikasi.");
     }
 }

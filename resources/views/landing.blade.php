@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KirimCepat – Solusi Kirim & Antar</title>
 
+<!-- Alpine.js untuk FAQ accordion -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
 <!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -54,10 +57,25 @@
         0%   { transform: scale(0.8); opacity: 1; }
         100% { transform: scale(2); opacity: 0; }
     }
+    @keyframes marquee {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-50%); }
+    }
+    @keyframes countUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
 
     .animate-fade-in-up  { animation: fadeInUp 0.7s ease forwards; }
     .animate-fade-in     { animation: fadeIn 0.7s ease forwards; }
     .animate-float       { animation: float 3s ease-in-out infinite; }
+    .animate-marquee {
+        animation: marquee 35s linear infinite;
+        display: flex;
+        width: max-content;
+    }
+    .animate-marquee:hover { animation-play-state: paused; }
+
     .delay-100 { animation-delay: 0.1s; }
     .delay-200 { animation-delay: 0.2s; }
     .delay-300 { animation-delay: 0.3s; }
@@ -116,18 +134,12 @@
         border: 1px solid rgba(255,255,255,0.2);
     }
 
-    .step-connector {
-        position: absolute;
-        top: 32px;
-        left: 60%;
-        width: 80%;
-        height: 2px;
-        background: linear-gradient(to right, #16a34a, #dcfce7);
-    }
-
     nav.scrolled {
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
+
+    /* FAQ accordion transition */
+    [x-cloak] { display: none !important; }
 </style>
 </head>
 <body class="bg-white antialiased">
@@ -142,9 +154,11 @@
             <span class="font-black text-slate-800 text-lg tracking-tight">KirimCepat</span>
         </div>
         <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500">
-            <a href="#layanan" class="hover:text-primary-600 transition-colors">Layanan</a>
-            <a href="#tarif" class="hover:text-primary-600 transition-colors">Tarif</a>
+            <a href="#layanan"   class="hover:text-primary-600 transition-colors">Layanan</a>
+            <a href="#tarif"     class="hover:text-primary-600 transition-colors">Tarif</a>
             <a href="#cara-kerja" class="hover:text-primary-600 transition-colors">Cara Kerja</a>
+            <a href="#mitra"     class="hover:text-primary-600 transition-colors">Jadi Mitra</a>
+            <a href="#faq"       class="hover:text-primary-600 transition-colors">FAQ</a>
         </div>
         <div class="flex items-center gap-3">
             <a href="{{ route('login') }}" class="text-sm font-bold text-slate-600 hover:text-primary-600 transition-colors px-3 py-2 rounded-xl hover:bg-primary-50">
@@ -226,40 +240,35 @@
         <div class="grid sm:grid-cols-2 gap-8">
             @foreach([
                 [
-                    'icon' => '📦',
-                    'title' => 'Kirim Barang',
-                    'desc' => 'Kirim dokumen, paket, elektronik, dan barang lainnya ke seluruh kota dengan aman dan cepat.',
-                    'bg' => 'bg-emerald-50',
-                    'iconBg' => 'bg-emerald-100',
-                    'iconColor' => 'text-emerald-600',
-                    'badgeBg' => 'bg-emerald-100',
-                    'badgeText' => 'text-emerald-700',
-                    'badge' => 'Pengiriman',
-                    'cta' => 'Mulai Kirim',
-                    'accentBar' => 'bg-emerald-400',
-                    'features' => ['Real-time tracking', 'Asuransi barang', 'Estimasi harga instan'],
+                    'icon'        => '📦',
+                    'title'       => 'Kirim Barang',
+                    'desc'        => 'Kirim dokumen, paket, elektronik, dan barang lainnya ke seluruh kota dengan aman dan cepat.',
+                    'bg'          => 'bg-emerald-50',
+                    'iconBg'      => 'bg-emerald-100',
+                    'badgeBg'     => 'bg-emerald-100',
+                    'badgeText'   => 'text-emerald-700',
+                    'badge'       => 'Pengiriman',
+                    'cta'         => 'Mulai Kirim',
+                    'accentBar'   => 'bg-emerald-400',
+                    'features'    => ['Real-time tracking', 'Asuransi barang', 'Estimasi harga instan'],
                 ],
                 [
-                    'icon' => '🛵',
-                    'title' => 'Antar Orang',
-                    'desc' => 'Pesan ojek atau taksi online untuk perjalanan harian Anda. Aman, nyaman, dan terpercaya.',
-                    'bg' => 'bg-amber-50',
-                    'iconBg' => 'bg-amber-100',
-                    'iconColor' => 'text-amber-600',
-                    'badgeBg' => 'bg-amber-100',
-                    'badgeText' => 'text-amber-700',
-                    'badge' => 'Transportasi',
-                    'cta' => 'Pesan Ojek',
-                    'accentBar' => 'bg-amber-400',
-                    'features' => ['Driver terverifikasi', 'Harga transparan', 'Rute terpendek'],
+                    'icon'        => '🛵',
+                    'title'       => 'Antar Orang',
+                    'desc'        => 'Pesan ojek atau taksi online untuk perjalanan harian Anda. Aman, nyaman, dan terpercaya.',
+                    'bg'          => 'bg-amber-50',
+                    'iconBg'      => 'bg-amber-100',
+                    'badgeBg'     => 'bg-amber-100',
+                    'badgeText'   => 'text-amber-700',
+                    'badge'       => 'Transportasi',
+                    'cta'         => 'Pesan Ojek',
+                    'accentBar'   => 'bg-amber-400',
+                    'features'    => ['Driver terverifikasi', 'Harga transparan', 'Rute terpendek'],
                 ],
             ] as $service)
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden group card-hover">
-                {{-- Accent bar di bagian atas --}}
                 <div class="h-1.5 {{ $service['accentBar'] }}"></div>
-
                 <div class="p-8">
-                    {{-- Header: ikon + badge --}}
                     <div class="flex items-start justify-between mb-6">
                         <div class="w-16 h-16 {{ $service['iconBg'] }} rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
                             {{ $service['icon'] }}
@@ -268,15 +277,9 @@
                             {{ $service['badge'] }}
                         </span>
                     </div>
-
-                    {{-- Judul & deskripsi --}}
                     <h3 class="text-2xl font-black text-slate-800 mb-2">{{ $service['title'] }}</h3>
                     <p class="text-slate-500 leading-relaxed mb-6 text-sm">{{ $service['desc'] }}</p>
-
-                    {{-- Divider --}}
                     <div class="border-t border-slate-100 mb-5"></div>
-
-                    {{-- Fitur --}}
                     <ul class="space-y-2.5 mb-7">
                         @foreach($service['features'] as $f)
                         <li class="flex items-center gap-2.5 text-sm text-slate-600">
@@ -289,10 +292,7 @@
                         </li>
                         @endforeach
                     </ul>
-
-                    {{-- CTA --}}
-                    <a href="{{ route('register') }}"
-                       class="inline-flex items-center gap-1.5 text-primary-600 font-bold hover:gap-3 transition-all duration-200 text-sm group/cta">
+                    <a href="{{ route('register') }}" class="inline-flex items-center gap-1.5 text-primary-600 font-bold hover:gap-3 transition-all duration-200 text-sm group/cta">
                         {{ $service['cta'] }}
                         <svg class="w-4 h-4 group-hover/cta:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
@@ -313,28 +313,27 @@
             <h2 class="text-3xl md:text-4xl font-black text-slate-800 mt-2">Tarif Terjangkau</h2>
             <p class="text-slate-500 mt-3">Harga transparan, tidak ada biaya tersembunyi</p>
         </div>
-
         <div class="grid md:grid-cols-2 gap-6">
             @foreach([
                 [
-                    'icon' => '🏍️',
-                    'type' => 'Motor',
-                    'rate' => 'Rp 2.500/km',
-                    'desc' => 'Hemat & cepat, cocok untuk pengiriman harian dan jarak dekat',
-                    'badge' => 'Paling Populer',
-                    'badgeBg' => 'bg-primary-100 text-primary-700',
+                    'icon'      => '🏍️',
+                    'type'      => 'Motor',
+                    'rate'      => 'Rp 2.500/km',
+                    'desc'      => 'Hemat & cepat, cocok untuk pengiriman harian dan jarak dekat',
+                    'badge'     => 'Paling Populer',
+                    'badgeBg'   => 'bg-primary-100 text-primary-700',
                     'highlight' => true,
-                    'perks' => ['Kapasitas hingga 5 kg', 'Cepat di jalur sempit', 'Hemat BBM'],
+                    'perks'     => ['Kapasitas hingga 5 kg', 'Cepat di jalur sempit', 'Hemat BBM'],
                 ],
                 [
-                    'icon' => '🚗',
-                    'type' => 'Mobil',
-                    'rate' => 'Rp 4.000/km',
-                    'desc' => 'Kapasitas besar, cocok untuk barang banyak dan perjalanan jauh',
-                    'badge' => 'Kapasitas Besar',
-                    'badgeBg' => 'bg-blue-100 text-blue-700',
+                    'icon'      => '🚗',
+                    'type'      => 'Mobil',
+                    'rate'      => 'Rp 4.000/km',
+                    'desc'      => 'Kapasitas besar, cocok untuk barang banyak dan perjalanan jauh',
+                    'badge'     => 'Kapasitas Besar',
+                    'badgeBg'   => 'bg-blue-100 text-blue-700',
                     'highlight' => false,
-                    'perks' => ['Kapasitas hingga 50 kg', 'AC & nyaman', 'Cocok barang fragil'],
+                    'perks'     => ['Kapasitas hingga 50 kg', 'AC & nyaman', 'Cocok barang fragil'],
                 ],
             ] as $tier)
             <div class="rounded-3xl p-8 border-2 {{ $tier['highlight'] ? 'border-primary-300 bg-primary-50' : 'border-slate-100 bg-white' }} card-hover relative">
@@ -355,7 +354,9 @@
                 <ul class="space-y-2 mb-6">
                     @foreach($tier['perks'] as $perk)
                     <li class="flex items-center gap-2 text-sm text-slate-600">
-                        <svg class="w-4 h-4 text-primary-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <svg class="w-4 h-4 text-primary-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
                         {{ $perk }}
                     </li>
                     @endforeach
@@ -375,13 +376,12 @@
             <h2 class="text-3xl md:text-4xl font-black text-slate-800 mt-2">Cara Kerja</h2>
             <p class="text-slate-500 mt-3">Pesan dalam hitungan menit</p>
         </div>
-
         <div class="grid md:grid-cols-4 gap-6">
             @foreach([
-                ['1', '📱', 'Pilih Layanan', 'Pilih jenis layanan dan isi detail pesanan Anda'],
-                ['2', '💰', 'Konfirmasi Harga', 'Cek estimasi harga dan pilih metode pembayaran'],
-                ['3', '🔔', 'Mitra Terima', 'Mitra terdekat mendapat notifikasi & segera menjemput'],
-                ['4', '📍', 'Lacak Real-time', 'Pantau posisi mitra secara langsung di aplikasi'],
+                ['1', '📱', 'Pilih Layanan',    'Pilih jenis layanan dan isi detail pesanan Anda'],
+                ['2', '💰', 'Konfirmasi Harga',  'Cek estimasi harga dan pilih metode pembayaran'],
+                ['3', '🔔', 'Mitra Terima',      'Mitra terdekat mendapat notifikasi & segera menjemput'],
+                ['4', '📍', 'Lacak Real-time',   'Pantau posisi mitra secara langsung di aplikasi'],
             ] as [$num, $icon, $title, $desc])
             <div class="text-center group">
                 <div class="relative mb-5 flex justify-center">
@@ -400,6 +400,59 @@
     </div>
 </section>
 
+<!-- ─── KEUNGGULAN ─────────────────────────────────────────── -->
+<section class="py-24 bg-white">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="text-center mb-14">
+            <span class="text-primary-600 font-bold text-sm uppercase tracking-widest">Mengapa Kami</span>
+            <h2 class="text-3xl md:text-4xl font-black text-slate-800 mt-2">Kenapa Pilih KirimCepat?</h2>
+            <p class="text-slate-500 mt-3">Kami hadir untuk memberikan pengalaman terbaik</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+            @foreach([
+                ['⚡', 'Respon Cepat',       'Mitra kami merespon pesanan dalam waktu kurang dari 2 menit.',        'bg-yellow-50',  'bg-yellow-100'],
+                ['🔒', 'Aman & Terpercaya',  'Semua mitra telah terverifikasi KTP, SIM, dan STNK resmi.',           'bg-blue-50',    'bg-blue-100'],
+                ['💸', 'Harga Transparan',   'Tidak ada biaya tersembunyi, harga terlihat sebelum pesan.',          'bg-green-50',   'bg-green-100'],
+                ['📍', 'Lacak Real-time',    'Pantau posisi mitra langsung dari browser Anda kapan saja.',          'bg-purple-50',  'bg-purple-100'],
+                ['🎯', 'Akurasi Tinggi',     'Sistem kami memilih mitra terdekat secara otomatis dan cerdas.',      'bg-red-50',     'bg-red-100'],
+                ['🏆', 'Bergaransi',         'Barang tidak sampai? Kami siap bertanggung jawab penuh.',             'bg-orange-50',  'bg-orange-100'],
+            ] as [$icon, $title, $desc, $bg, $iconBg])
+            <div class="{{ $bg }} rounded-2xl p-6 card-hover border border-slate-100">
+                <div class="w-12 h-12 {{ $iconBg }} rounded-xl flex items-center justify-center text-2xl mb-4">
+                    {{ $icon }}
+                </div>
+                <h3 class="font-black text-slate-800 mb-2">{{ $title }}</h3>
+                <p class="text-slate-500 text-sm leading-relaxed">{{ $desc }}</p>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- ─── STATS COUNTER ───────────────────────────────────────── -->
+<section class="py-20 hero-bg relative overflow-hidden">
+    <div class="max-w-4xl mx-auto px-4 relative z-10">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-black text-white">KirimCepat dalam Angka</h2>
+            <p class="text-green-200 mt-2">Dipercaya oleh ribuan pengguna setiap hari</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            @foreach([
+                ['50.000+',   'Pengguna Aktif',    '👥'],
+                ['500+',      'Mitra Driver',       '🏍️'],
+                ['120.000+',  'Pesanan Selesai',    '📦'],
+                ['4.9/5',     'Rating Pengguna',    '⭐'],
+            ] as [$num, $label, $icon])
+            <div class="text-center stat-card rounded-2xl p-6">
+                <div class="text-3xl mb-2">{{ $icon }}</div>
+                <div class="text-3xl font-black text-white mb-1">{{ $num }}</div>
+                <div class="text-green-200 text-sm font-medium">{{ $label }}</div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
 <!-- ─── TESTIMONI ───────────────────────────────────────────── -->
 <section class="py-24 bg-white overflow-hidden">
     <div class="max-w-5xl mx-auto px-4">
@@ -409,9 +462,9 @@
         </div>
         <div class="grid md:grid-cols-3 gap-6">
             @foreach([
-                ['Budi Santoso', 'Pengusaha Online', '⭐⭐⭐⭐⭐', 'Pengiriman selalu tepat waktu! Barang sampai dalam kondisi sempurna. Mitra drivernya ramah dan profesional.', 'BS'],
-                ['Siti Rahma', 'Ibu Rumah Tangga', '⭐⭐⭐⭐⭐', 'Order makanan jadi gampang banget. Harganya transparan, tidak ada biaya kejutan. Recommended!', 'SR'],
-                ['Andi Pratama', 'Mahasiswa', '⭐⭐⭐⭐⭐', 'Tarif paling murah dibanding aplikasi lain. Drivernya cepat datang, aplikasinya mudah dipakai.', 'AP'],
+                ['Budi Santoso',  'Pengusaha Online',   '⭐⭐⭐⭐⭐', 'Pengiriman selalu tepat waktu! Barang sampai dalam kondisi sempurna. Mitra drivernya ramah dan profesional.', 'BS'],
+                ['Siti Rahma',    'Ibu Rumah Tangga',   '⭐⭐⭐⭐⭐', 'Order makanan jadi gampang banget. Harganya transparan, tidak ada biaya kejutan. Recommended!',            'SR'],
+                ['Andi Pratama',  'Mahasiswa',           '⭐⭐⭐⭐⭐', 'Tarif paling murah dibanding aplikasi lain. Drivernya cepat datang, aplikasinya mudah dipakai.',            'AP'],
             ] as [$name, $role, $stars, $review, $initials])
             <div class="bg-slate-50 rounded-3xl p-7 card-hover border border-slate-100">
                 <div class="text-base mb-4">{{ $stars }}</div>
@@ -424,6 +477,128 @@
                         <div class="font-bold text-slate-800 text-sm">{{ $name }}</div>
                         <div class="text-slate-400 text-xs">{{ $role }}</div>
                     </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- ─── MARQUEE AKTIVITAS ───────────────────────────────────── -->
+<section class="py-5 bg-slate-900 overflow-hidden border-y border-slate-800">
+    <div class="flex gap-8 animate-marquee whitespace-nowrap">
+        @php
+        $activities = [
+            '📦 Andi berhasil kirim paket ke Malioboro',
+            '🛵 Siti memesan ojek ke Bandara',
+            '⭐ Budi memberi rating 5 bintang',
+            '📦 Reza kirim dokumen ke kantor',
+            '🛵 Amanda pesan antar ke kampus',
+            '✅ 12 pesanan selesai dalam 1 jam terakhir',
+            '📦 Toko Online XYZ kirim 5 paket sekaligus',
+            '🏍️ Mitra baru bergabung di Yogyakarta',
+            '💰 Bonus mingguan cair untuk 50 mitra',
+            '🎉 KirimCepat melayani 1.000 pesanan hari ini',
+        ];
+        @endphp
+        @foreach(array_merge($activities, $activities) as $activity)
+        <span class="text-slate-400 text-sm font-medium flex items-center gap-2 shrink-0">
+            {{ $activity }}
+            <span class="text-slate-700 mx-2">•</span>
+        </span>
+        @endforeach
+    </div>
+</section>
+
+<!-- ─── REKRUTMEN MITRA ──────────────────────────────────────── -->
+<section id="mitra" class="py-24 bg-slate-50">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-10 md:p-14 flex flex-col md:flex-row items-center gap-10">
+            <div class="flex-1 text-center md:text-left">
+                <span class="inline-block bg-primary-500/20 text-primary-400 text-xs font-bold px-3 py-1 rounded-full mb-4">
+                    🏍️ Bergabung sebagai Mitra
+                </span>
+                <h2 class="text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
+                    Jadikan Motor Anda<br>
+                    <span class="text-primary-400">Sumber Penghasilan</span>
+                </h2>
+                <p class="text-slate-400 mb-6 leading-relaxed">
+                    Bergabung bersama 500+ mitra driver kami. Jam kerja fleksibel, penghasilan tanpa batas, bonus performa setiap minggu.
+                </p>
+                <div class="flex flex-wrap gap-4 justify-center md:justify-start mb-8">
+                    @foreach(['Jam Kerja Bebas', 'Bonus Mingguan', 'Asuransi Mitra', 'Pencairan Cepat'] as $perk)
+                    <span class="flex items-center gap-1.5 text-sm text-slate-300">
+                        <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        {{ $perk }}
+                    </span>
+                    @endforeach
+                </div>
+                <a href="{{ route('register') }}?role=mitra"
+                   class="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-black px-8 py-4 rounded-2xl transition-all shadow-lg btn-primary">
+                    Daftar Jadi Mitra Sekarang
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="flex-shrink-0 grid grid-cols-2 gap-4">
+                @foreach([
+                    ['Rp 3-8 Juta', 'Penghasilan/Bulan', '💰'],
+                    ['500+',        'Mitra Aktif',        '👥'],
+                    ['< 2 Menit',   'Respon Pesanan',     '⚡'],
+                    ['24 Jam',      'Support Mitra',      '🎧'],
+                ] as [$val, $label, $icon])
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
+                    <div class="text-2xl mb-1">{{ $icon }}</div>
+                    <div class="text-white font-black text-lg">{{ $val }}</div>
+                    <div class="text-slate-400 text-xs mt-0.5">{{ $label }}</div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── FAQ ─────────────────────────────────────────────────── -->
+<section id="faq" class="py-24 bg-white">
+    <div class="max-w-3xl mx-auto px-4">
+        <div class="text-center mb-14">
+            <span class="text-primary-600 font-bold text-sm uppercase tracking-widest">FAQ</span>
+            <h2 class="text-3xl md:text-4xl font-black text-slate-800 mt-2">Pertanyaan Umum</h2>
+            <p class="text-slate-500 mt-3">Punya pertanyaan? Kami punya jawabannya</p>
+        </div>
+        <div class="space-y-4">
+            @foreach([
+                ['Bagaimana cara memesan layanan?',               'Daftar akun, pilih layanan (Kirim Barang / Antar Orang), isi detail pesanan, pilih pembayaran, dan mitra akan segera menjemput.'],
+                ['Apakah mitra driver sudah terverifikasi?',       'Ya, semua mitra wajib melalui verifikasi KTP, SIM, dan STNK sebelum bisa menerima pesanan.'],
+                ['Metode pembayaran apa saja yang tersedia?',      'Saat ini kami mendukung pembayaran tunai (COD), transfer bank, dan QRIS.'],
+                ['Bagaimana jika barang saya rusak atau hilang?',  'Kami memberikan jaminan keamanan barang. Hubungi support kami dalam 1x24 jam untuk proses klaim.'],
+                ['Bagaimana cara menjadi mitra driver?',           'Klik Daftar sebagai Mitra, lengkapi data diri dan kendaraan, tunggu verifikasi, dan mulai terima pesanan.'],
+                ['Apakah ada biaya pendaftaran untuk mitra?',      'Tidak ada! Pendaftaran mitra sepenuhnya gratis. Kami hanya mengambil komisi kecil per transaksi.'],
+                ['Berapa lama estimasi pengiriman?',               'Untuk area kota, rata-rata 30-60 menit. Untuk antar orang, mitra tiba dalam 5-10 menit setelah pesanan diterima.'],
+                ['Bisa pesan untuk orang lain (penerima berbeda)?','Bisa! Saat memesan, Anda bisa mengisi data penerima yang berbeda dengan akun Anda.'],
+            ] as $i => [$q, $a])
+            <div class="border border-slate-200 rounded-2xl overflow-hidden" x-data="{ open: false }">
+                <button class="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 transition-colors"
+                        @click="open = !open">
+                    <span class="font-bold text-slate-800 pr-4">{{ $q }}</span>
+                    <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-300"
+                         :class="open ? 'rotate-180' : ''"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="px-6 pb-6">
+                    <p class="text-slate-500 leading-relaxed text-sm">{{ $a }}</p>
                 </div>
             </div>
             @endforeach
@@ -444,10 +619,12 @@
             Daftar sekarang sebagai Customer atau Mitra Driver
         </p>
         <div class="flex flex-wrap gap-4 justify-center">
-            <a href="{{ route('register') }}?role=customer" class="bg-white text-primary-700 font-black px-8 py-4 rounded-2xl hover:bg-green-50 transition-all shadow-2xl btn-primary inline-flex items-center gap-2">
+            <a href="{{ route('register') }}?role=customer"
+               class="bg-white text-primary-700 font-black px-8 py-4 rounded-2xl hover:bg-green-50 transition-all shadow-2xl btn-primary inline-flex items-center gap-2">
                 🛒 Daftar sebagai Customer
             </a>
-            <a href="{{ route('register') }}?role=mitra" class="border-2 border-white/30 text-white font-bold px-8 py-4 rounded-2xl hover:bg-white/10 transition-all backdrop-blur inline-flex items-center gap-2">
+            <a href="{{ route('register') }}?role=mitra"
+               class="border-2 border-white/30 text-white font-bold px-8 py-4 rounded-2xl hover:bg-white/10 transition-all backdrop-blur inline-flex items-center gap-2">
                 🏍️ Daftar sebagai Mitra
             </a>
         </div>
@@ -464,10 +641,12 @@
                 </div>
                 <span class="font-black text-white text-lg">KirimCepat</span>
             </div>
-            <div class="flex gap-6 text-sm">
-                <a href="#layanan" class="hover:text-white transition-colors">Layanan</a>
-                <a href="#tarif" class="hover:text-white transition-colors">Tarif</a>
+            <div class="flex flex-wrap justify-center gap-6 text-sm">
+                <a href="#layanan"    class="hover:text-white transition-colors">Layanan</a>
+                <a href="#tarif"      class="hover:text-white transition-colors">Tarif</a>
                 <a href="#cara-kerja" class="hover:text-white transition-colors">Cara Kerja</a>
+                <a href="#mitra"      class="hover:text-white transition-colors">Jadi Mitra</a>
+                <a href="#faq"        class="hover:text-white transition-colors">FAQ</a>
                 <a href="{{ route('login') }}" class="hover:text-white transition-colors">Masuk</a>
             </div>
         </div>
@@ -480,12 +659,7 @@
 <script>
     // Navbar shadow on scroll
     window.addEventListener('scroll', () => {
-        const navbar = document.getElementById('navbar');
-        if (window.scrollY > 20) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
     });
 
     // Smooth scroll for anchor links
@@ -493,13 +667,11 @@
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     });
 
-    // Intersection Observer for scroll animations
+    // Scroll animation for cards
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {

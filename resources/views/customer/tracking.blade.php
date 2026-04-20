@@ -47,7 +47,6 @@
             max-width: 1100px;
             margin: 0 auto;
             padding: 0 12px 80px;
-            /* bottom pad for mobile bottom-nav */
         }
 
         @media (min-width: 768px) {
@@ -63,11 +62,6 @@
         }
 
         /* ─── Main Grid ───────────────────────────────────────── */
-        /*
-      Mobile  (<768px) : 1 col  — main stacked
-      Tablet  (768px+) : 1 col  — main + side stacked
-      Desktop (1024px+): 2 col  — main | side (fixed width)
-    */
         .track-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -241,6 +235,7 @@
             background: #16a34a;
             color: white;
             font-size: 13px;
+            animation: stepglow 2s infinite;
         }
 
         .step-icon.todo {
@@ -338,11 +333,6 @@
             50% {
                 opacity: .3
             }
-        }
-
-        /* Active step pulse */
-        .step-icon.active {
-            animation: stepglow 2s infinite;
         }
 
         @keyframes stepglow {
@@ -688,7 +678,67 @@
 @section('content')
     <div class="page-wrap">
 
-        {{-- ✅ PERBAIKAN: Definisikan chat status SEKALI di sini, dipakai di semua tempat --}}
+        {{-- Definisikan chat status SEKALI di sini --}}
+        @php
+            $bankData = [
+                'bni' => [
+                    'name' => 'BNI',
+                    'full' => 'Bank Negara Indonesia',
+                    'color' => '#f97316',
+                    'no_rek' => '1234567890',
+                ],
+                'bri' => [
+                    'name' => 'BRI',
+                    'full' => 'Bank Rakyat Indonesia',
+                    'color' => '#2563eb',
+                    'no_rek' => '1234567890',
+                ],
+                'mandiri' => [
+                    'name' => 'Mandiri',
+                    'full' => 'Bank Mandiri',
+                    'color' => '#ca8a04',
+                    'no_rek' => '1234567890',
+                ],
+                'bca' => [
+                    'name' => 'BCA',
+                    'full' => 'Bank Central Asia',
+                    'color' => '#0ea5e9',
+                    'no_rek' => '1234567890',
+                ],
+                'bsi' => [
+                    'name' => 'BSI',
+                    'full' => 'Bank Syariah Indonesia',
+                    'color' => '#10b981',
+                    'no_rek' => '1234567890',
+                ],
+                'seabank' => [
+                    'name' => 'SeaBank',
+                    'full' => 'Sea Bank Indonesia',
+                    'color' => '#6366f1',
+                    'no_rek' => '1234567890',
+                ],
+                'btn' => [
+                    'name' => 'BTN',
+                    'full' => 'Bank Tabungan Negara',
+                    'color' => '#dc2626',
+                    'no_rek' => '1234567890',
+                ],
+                'cimb' => ['name' => 'CIMB', 'full' => 'CIMB Niaga', 'color' => '#b91c1c', 'no_rek' => '1234567890'],
+            ];
+            $selectedBank = $bankData[$selected?->bank_selected ?? ''] ?? null;
+
+
+               $ewalletData = [
+        'gopay'     => ['name' => 'GoPay',     'color' => '#00AED6', 'bg' => '#e0f7ff'],
+        'ovo'       => ['name' => 'OVO',        'color' => '#4c3494', 'bg' => '#ede9fe'],
+        'dana'      => ['name' => 'DANA',       'color' => '#1185e0', 'bg' => '#dbeafe'],
+        'shopeepay' => ['name' => 'ShopeePay',  'color' => '#ef4444', 'bg' => '#fee2e2'],
+        'linkaja'   => ['name' => 'LinkAja',    'color' => '#e8282b', 'bg' => '#fee2e2'],
+        'astrapay'  => ['name' => 'AstraPay',   'color' => '#0d4f9e', 'bg' => '#dbeafe'],
+    ];
+    $selectedEwallet = $ewalletData[$selected?->ewallet_selected ?? ''] ?? null;
+        @endphp
+
         @php
             $chatAllowedStatuses = $selected?->isRide()
                 ? ['accepted', 'on_the_way', 'picked_up', 'arrived']
@@ -697,8 +747,7 @@
         @endphp
 
         {{-- ── Page Header ───────────────────────── --}}
-        <div style="display:flex;align-items:center;justify-content:space-between;
-                padding:12px 2px 10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 2px 10px;">
             <h1 style="font-size:15px;font-weight:900;color:#0f172a;margin:0;">
                 Lacak Pesanan 📍
             </h1>
@@ -711,24 +760,21 @@
             @endif
         </div>
 
-        {{-- ══════════════════════════════════════════════════════
-         MAIN GRID: 1 col mobile → 2 col desktop
-    ══════════════════════════════════════════════════════ --}}
+        {{-- ══ MAIN GRID ══ --}}
         <div class="track-grid">
 
             {{-- ╔══════════════════════════════════════════╗
-             ║  KOLOM KIRI — order card + history      ║
-             ╚══════════════════════════════════════════╝ --}}
+                 ║  KOLOM KIRI — order card + history      ║
+                 ╚══════════════════════════════════════════╝ --}}
             <div style="display:flex;flex-direction:column;gap:12px;min-width:0;">
 
                 @if ($selected)
-                    {{-- ── ORDER CARD ─────────────────────────── --}}
+                    {{-- ── ORDER CARD ── --}}
                     <div class="tk-card">
 
                         {{-- Banner --}}
                         <div
-                            class="order-banner
-                    {{ $selected->status === 'cancelled' ? 'red' : ($selected->isRide() ? 'blue' : 'green') }}">
+                            class="order-banner {{ $selected->status === 'cancelled' ? 'red' : ($selected->isRide() ? 'blue' : 'green') }}">
                             <div style="display:flex;align-items:center;gap:8px;min-width:0;">
                                 <span style="font-size:18px;flex-shrink:0;">
                                     @if ($selected->status === 'cancelled')
@@ -811,8 +857,7 @@
                                     </div>
                                     <div style="flex:1;min-width:0;">
                                         <p
-                                            style="font-weight:700;font-size:12px;color:#1e293b;margin:0;
-                                       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            style="font-weight:700;font-size:12px;color:#1e293b;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                                             {{ $selected->mitra->name }}
                                         </p>
                                         <p style="font-size:10px;color:#64748b;margin:0;">
@@ -829,7 +874,6 @@
                                                 <i class="fas fa-phone" style="font-size:11px;"></i>
                                             </a>
                                         @endif
-                                        {{-- ✅ PERBAIKAN: Gunakan $chatEnabled yang sudah didefinisikan di atas --}}
                                         @if ($chatEnabled)
                                             <div class="chat-btn-wrap">
                                                 <button class="icon-btn" onclick="toggleChat()" title="Chat">
@@ -842,8 +886,7 @@
                                 </div>
                             @endif
 
-                            {{-- ══ TRACKING STEPS ══════════════════ --}}
-                            {{-- ✅ PERBAIKAN: Steps dan statusOrder diselaraskan untuk semua tipe layanan --}}
+                            {{-- ══ TRACKING STEPS ══ --}}
                             @if ($selected->service_type === 'kirim_barang')
                                 @php
                                     $steps = [
@@ -878,7 +921,6 @@
                                             'desc' => 'Barang sampai di tujuan',
                                         ],
                                     ];
-                                    // ✅ Hapus 'delivered' — tidak ada di $steps, menyebabkan $curIdx meleset
                                     $statusOrder = ['waiting', 'accepted', 'picking_up', 'in_progress', 'completed'];
                                 @endphp
                             @elseif($selected->service_type === 'antar_orang')
@@ -914,7 +956,6 @@
                                             'title' => 'Sampai Tujuan',
                                             'desc' => 'Anda telah tiba di tujuan',
                                         ],
-                                        // ✅ Tambahkan step completed yang sebelumnya hilang
                                         [
                                             'status' => 'completed',
                                             'icon' => '🎉',
@@ -965,7 +1006,6 @@
                                             'desc' => 'Selamat menikmati!',
                                         ],
                                     ];
-                                    // ✅ Hapus 'delivered' — tidak ada di $steps
                                     $statusOrder = ['waiting', 'accepted', 'picking_up', 'in_progress', 'completed'];
                                 @endphp
                             @endif
@@ -979,8 +1019,7 @@
 
                             <div>
                                 <p
-                                    style="font-size:9px;font-weight:800;color:#94a3b8;
-                                   text-transform:uppercase;letter-spacing:.07em;margin:0 0 6px;">
+                                    style="font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin:0 0 6px;">
                                     Status Perjalanan
                                 </p>
                                 <div class="steps-wrap">
@@ -1031,9 +1070,8 @@
                                         <div class="cancel-box" style="margin-top:8px;">
                                             <span style="font-size:16px;flex-shrink:0;line-height:1;">❌</span>
                                             <div style="flex:1;min-width:0;">
-                                                <p style="font-weight:800;font-size:11px;color:#dc2626;margin:0;">
-                                                    Pesanan Dibatalkan
-                                                </p>
+                                                <p style="font-weight:800;font-size:11px;color:#dc2626;margin:0;">Pesanan
+                                                    Dibatalkan</p>
                                                 <p style="font-size:10px;color:#f87171;margin:2px 0 0;">
                                                     Oleh <strong
                                                         class="capitalize">{{ $selected->cancelled_by ?? '-' }}</strong>
@@ -1043,9 +1081,7 @@
                                                 </p>
                                                 @if ($selected->cancel_reason)
                                                     <p
-                                                        style="font-size:10px;color:#475569;margin:4px 0 0;
-                                               background:white;border:1px solid #fecaca;
-                                               border-radius:8px;padding:4px 8px;">
+                                                        style="font-size:10px;color:#475569;margin:4px 0 0;background:white;border:1px solid #fecaca;border-radius:8px;padding:4px 8px;">
                                                         <strong>Alasan:</strong> {{ $selected->cancel_reason }}
                                                     </p>
                                                 @endif
@@ -1058,33 +1094,31 @@
 
                             {{-- Total --}}
                             <div class="total-bar">
-                                <span style="font-size:11px;font-weight:700;color:#64748b;">
-                                    Total Pembayaran
-                                </span>
+                                <span style="font-size:11px;font-weight:700;color:#64748b;">Total Pembayaran</span>
                                 <span style="font-size:14px;font-weight:900;color:#16a34a;">
                                     Rp {{ number_format($selected->total_fare, 0, ',', '.') }}
                                 </span>
                             </div>
 
+                            {{-- ══ PAYMENT SECTION ══ --}}
 
-                          
-
-                            {{-- QRIS Payment Button --}}
+                            {{-- QRIS --}}
                             @if ($selected->payment_method === 'qris' && !$selected->isPaid())
                                 <a href="{{ route('customer.payment', $selected) }}"
                                     style="display:flex;align-items:center;justify-content:center;gap:6px;
-                              width:100%;padding:10px;border-radius:12px;
-                              background:#16a34a;color:white;font-size:12px;font-weight:700;
-                              text-decoration:none;transition:opacity .15s;"
+                                           width:100%;padding:10px;border-radius:12px;
+                                           background:#16a34a;color:white;font-size:12px;font-weight:700;
+                                           text-decoration:none;transition:opacity .15s;"
                                     onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
                                     <i class="fas fa-qrcode" style="font-size:12px;"></i>
                                     {{ $selected->payment_proof ? 'Lihat Status Pembayaran' : 'Bayar Sekarang (QRIS)' }}
                                 </a>
                             @endif
+
                             @if ($selected->payment_method === 'qris' && $selected->isPaid())
                                 <div
                                     style="display:flex;align-items:center;gap:8px;padding:10px 12px;
-                                border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;">
+                                            border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;">
                                     <i class="fas fa-check-circle" style="color:#16a34a;font-size:13px;"></i>
                                     <div>
                                         <p style="font-size:11px;font-weight:800;color:#15803d;margin:0;">Pembayaran
@@ -1095,6 +1129,222 @@
                                     </div>
                                 </div>
                             @endif
+
+                            {{-- TRANSFER --}}
+                            @if ($selected->payment_method === 'transfer')
+
+                                @if (!$selected->isPaid() && !$selected->payment_proof)
+                                    {{-- Belum upload bukti transfer --}}
+                                    <form method="POST" action="{{ route('customer.payment.upload', $selected->id) }}"
+                                        enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:8px;">
+                                        @csrf
+                                        <div
+                                            style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:10px 12px;">
+                                            <p style="font-size:11px;font-weight:800;color:#92400e;margin:0 0 4px;">
+                                                💳 Pembayaran Transfer Bank
+                                            </p>
+                                            <p style="font-size:10px;color:#a16207;margin:0;">
+                                                Silakan transfer ke rekening berikut, lalu upload bukti transfer.
+                                            </p>
+                                            {{-- Info rekening dinamis --}}
+                                            <div
+                                                style="margin-top:8px;background:white;border-radius:8px;padding:8px 10px;border:1px solid #fde68a;">
+                                                @if ($selectedBank)
+                                                    <div
+                                                        style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                                                        <div
+                                                            style="width:28px;height:28px;border-radius:6px;
+                        background:{{ $selectedBank['color'] }};
+                        display:flex;align-items:center;justify-content:center;">
+                                                            <span
+                                                                style="font-size:9px;font-weight:800;color:white;letter-spacing:-0.5px;">
+                                                                {{ $selectedBank['name'] }}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <p
+                                                                style="font-size:11px;font-weight:700;color:#1e293b;margin:0;">
+                                                                {{ $selectedBank['full'] }}
+                                                            </p>
+                                                            <p style="font-size:10px;color:#64748b;margin:0;">
+                                                                {{ $selectedBank['name'] }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <p
+                                                        style="font-size:15px;font-weight:900;color:#0f172a;margin:2px 0;letter-spacing:1px;">
+                                                        {{ $selectedBank['no_rek'] }}
+                                                    </p>
+                                                    <p style="font-size:10px;color:#64748b;margin:0;">a.n. KirimCepat</p>
+                                                @else
+                                                    <p style="font-size:10px;color:#94a3b8;margin:0;">
+                                                        <i class="fas fa-exclamation-circle" style="color:#f59e0b;"></i>
+                                                        Info rekening tidak ditemukan. Hubungi admin.
+                                                    </p>
+                                                @endif
+                                            </div>
+                                            <div
+                                                style="margin-top:8px;display:flex;justify-content:space-between;
+                                                        align-items:center;background:white;border-radius:8px;
+                                                        padding:7px 10px;border:1px solid #fde68a;">
+                                                <span style="font-size:10px;color:#64748b;">Total Transfer</span>
+                                                <span style="font-size:13px;font-weight:900;color:#16a34a;">
+                                                    Rp {{ number_format($selected->total_fare, 0, ',', '.') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <label style="display:flex;flex-direction:column;gap:5px;">
+                                            <span style="font-size:10px;font-weight:700;color:#475569;">
+                                                Upload Bukti Transfer <span style="color:#ef4444;">*</span>
+                                            </span>
+                                            <input type="file" name="payment_proof" accept="image/*" required
+                                                style="font-size:11px;border:1.5px solid #e2e8f0;border-radius:10px;
+                                                       padding:7px 10px;background:white;width:100%;box-sizing:border-box;">
+                                        </label>
+                                        <button type="submit"
+                                            style="width:100%;padding:10px;border-radius:12px;border:none;
+                                                   background:#16a34a;color:white;font-size:12px;font-weight:700;
+                                                   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                                            <i class="fas fa-upload" style="font-size:11px;"></i>
+                                            Upload Bukti Transfer
+                                        </button>
+                                    </form>
+                                @elseif($selected->payment_proof && !$selected->isPaid())
+                                    {{-- Sudah upload, menunggu konfirmasi admin --}}
+                                    <div
+                                        style="display:flex;align-items:center;gap:8px;padding:10px 12px;
+                                                border-radius:12px;background:#fffbeb;border:1px solid #fde68a;">
+                                        <i class="fas fa-clock" style="color:#f59e0b;font-size:13px;"></i>
+                                        <div>
+                                            <p style="font-size:11px;font-weight:800;color:#92400e;margin:0;">
+                                                Menunggu Konfirmasi Admin
+                                            </p>
+                                            <p style="font-size:10px;color:#a16207;margin:0;">
+                                                Bukti transfer Anda sedang diverifikasi
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                @endif
+
+                                @endif
+
+          {{-- E-WALLET --}}
+@if ($selected->payment_method === 'e_wallet')
+
+    @if (!$selected->isPaid() && !$selected->payment_proof)
+        {{-- Belum upload bukti --}}
+        <form method="POST"
+            action="{{ route('customer.payment.upload', $selected->id) }}"
+            enctype="multipart/form-data"
+            style="display:flex;flex-direction:column;gap:8px;">
+            @csrf
+            <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:10px 12px;">
+                <p style="font-size:11px;font-weight:800;color:#92400e;margin:0 0 4px;">
+                    💳 Pembayaran via {{ $selectedEwallet['name'] ?? 'E-Wallet' }}
+                </p>
+                <p style="font-size:10px;color:#a16207;margin:0;">
+                    Selesaikan pembayaran melalui aplikasi {{ $selectedEwallet['name'] ?? 'e-wallet' }} Anda,
+                    lalu upload screenshot bukti pembayaran.
+                </p>
+                <div style="margin-top:8px;background:white;border-radius:8px;
+                            padding:8px 10px;border:1px solid #fed7aa;
+                            display:flex;align-items:center;gap:8px;">
+                    <div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;
+                                background:{{ $selectedEwallet['bg'] ?? '#f1f5f9' }};
+                                display:flex;align-items:center;justify-content:center;">
+                        <span style="font-size:10px;font-weight:800;
+                                     color:{{ $selectedEwallet['color'] ?? '#64748b' }};">
+                            {{ $selectedEwallet['name'] ?? 'E-Wallet' }}
+                        </span>
+                    </div>
+                    <div>
+                        <p style="font-size:11px;font-weight:700;color:#1e293b;margin:0;">
+                            {{ $selectedEwallet['name'] ?? 'E-Wallet' }}
+                        </p>
+                        <p style="font-size:10px;color:#64748b;margin:0;">
+                            Transfer sesuai total tagihan
+                        </p>
+                    </div>
+                    <div style="margin-left:auto;text-align:right;">
+                        <p style="font-size:13px;font-weight:900;color:#16a34a;margin:0;">
+                            Rp {{ number_format($selected->total_fare, 0, ',', '.') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:5px;">
+                <span style="font-size:10px;font-weight:700;color:#475569;">
+                    Upload Screenshot Bukti <span style="color:#ef4444;">*</span>
+                </span>
+                <input type="file" name="payment_proof" accept="image/*" required
+                    style="font-size:11px;border:1.5px solid #e2e8f0;border-radius:10px;
+                           padding:7px 10px;background:white;width:100%;box-sizing:border-box;">
+            </label>
+            <button type="submit"
+                style="width:100%;padding:10px;border-radius:12px;border:none;
+                       background:#16a34a;color:white;font-size:12px;font-weight:700;
+                       cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <i class="fas fa-upload" style="font-size:11px;"></i>
+                Upload Bukti Pembayaran
+            </button>
+        </form>
+
+    @elseif($selected->payment_proof && !$selected->isPaid())
+        {{-- Sudah upload, menunggu konfirmasi admin --}}
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;
+                    border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;">
+            <i class="fas fa-clock" style="color:#f59e0b;font-size:13px;"></i>
+            <div>
+                <p style="font-size:11px;font-weight:800;color:#92400e;margin:0;">
+                    Menunggu Konfirmasi Admin
+                </p>
+                <p style="font-size:10px;color:#a16207;margin:0;">
+                    Bukti pembayaran {{ $selectedEwallet['name'] ?? 'e-wallet' }} sedang diverifikasi
+                </p>
+            </div>
+        </div>
+    @endif
+
+    @if ($selected->isPaid())
+        {{-- Sudah dikonfirmasi --}}
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;
+                    border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;">
+            <i class="fas fa-check-circle" style="color:#16a34a;font-size:13px;"></i>
+            <div>
+                <p style="font-size:11px;font-weight:800;color:#15803d;margin:0;">
+                    Pembayaran Dikonfirmasi
+                </p>
+                <p style="font-size:10px;color:#16a34a;margin:0;">
+                    {{ $selected->paid_at?->format('d M Y, H:i') }}
+                </p>
+            </div>
+        </div>
+    @endif
+
+
+
+            {{-- ══ END PAYMENT SECTION ══ --}}
+
+                                @if ($selected->isPaid())
+                                    {{-- Sudah dikonfirmasi --}}
+                                    <div
+                                        style="display:flex;align-items:center;gap:8px;padding:10px 12px;
+                                                border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;">
+                                        <i class="fas fa-check-circle" style="color:#16a34a;font-size:13px;"></i>
+                                        <div>
+                                            <p style="font-size:11px;font-weight:800;color:#15803d;margin:0;">
+                                                Pembayaran Dikonfirmasi
+                                            </p>
+                                            <p style="font-size:10px;color:#16a34a;margin:0;">
+                                                {{ $selected->paid_at?->format('d M Y, H:i') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                @endif
+
+                            @endif
+                            {{-- ══ END PAYMENT SECTION ══ --}}
 
                             {{-- Actions --}}
                             <div style="display:flex;flex-direction:column;gap:6px;">
@@ -1114,11 +1364,13 @@
                                 @endif
                             </div>
 
-                        </div>{{-- end padding --}}
-                    </div>{{-- end order card --}}
-                @endif
+                        </div>{{-- end padding dalam tk-card --}}
+                    </div>{{-- end .tk-card --}}
 
-                {{-- ── EMPTY STATE ─────────────────────────── --}}
+                @endif
+                {{-- end @if ($selected) --}}
+
+                {{-- ── EMPTY STATE ── --}}
                 @if (!$selected && $activeOrders->isEmpty() && $historyOrders->isEmpty())
                     <div class="tk-card" style="padding:48px 20px;text-align:center;">
                         <div style="font-size:48px;margin-bottom:12px;">📭</div>
@@ -1126,14 +1378,14 @@
                         <p style="font-size:12px;color:#94a3b8;margin:6px 0 16px;">Buat pesanan pertama Anda sekarang!</p>
                         <a href="{{ route('customer.order') }}"
                             style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;
-                          background:#16a34a;color:white;border-radius:10px;font-size:12px;
-                          font-weight:700;text-decoration:none;">
+                                   background:#16a34a;color:white;border-radius:10px;font-size:12px;
+                                   font-weight:700;text-decoration:none;">
                             <i class="fas fa-plus" style="font-size:10px;"></i> Buat Pesanan
                         </a>
                     </div>
                 @endif
 
-                {{-- ── RIWAYAT ─────────────────────────────── --}}
+                {{-- ── RIWAYAT ── --}}
                 @if ($historyOrders->isNotEmpty())
                     <div>
                         <p style="font-size:11px;font-weight:800;color:#334155;margin:0 0 8px 2px;">
@@ -1144,8 +1396,8 @@
                                 <a href="{{ route('customer.order.show', $o->id) }}" class="hist-item">
                                     <div
                                         style="width:36px;height:36px;border-radius:10px;background:#f8fafc;
-                                    display:flex;align-items:center;justify-content:center;
-                                    font-size:16px;flex-shrink:0;">
+                                                display:flex;align-items:center;justify-content:center;
+                                                font-size:16px;flex-shrink:0;">
                                         {{ $o->service_type === 'kirim_barang' ? '📦' : ($o->service_type === 'antar_orang' ? '🛵' : '🍜') }}
                                     </div>
                                     <div style="flex:1;min-width:0;">
@@ -1153,8 +1405,7 @@
                                             {{ $o->order_code }}
                                         </p>
                                         <p
-                                            style="font-size:10px;color:#94a3b8;margin:1px 0 0;
-                                       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            style="font-size:10px;color:#94a3b8;margin:1px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                                             {{ $o->pickup_address }} → {{ $o->destination_address }}
                                         </p>
                                         <p style="font-size:10px;color:#cbd5e1;margin:1px 0 0;">
@@ -1184,13 +1435,12 @@
                     </div>
                 @endif
 
-            </div>{{-- end left col --}}
+            </div>
+            {{-- ══ END KOLOM KIRI ══ --}}
 
             {{-- ╔══════════════════════════════════════════╗
-             ║  KOLOM KANAN — sidebar info              ║
-             ║  Desktop: fixed right col                ║
-             ║  Mobile/Tablet: stacked below            ║
-             ╚══════════════════════════════════════════╝ --}}
+                 ║  KOLOM KANAN — sidebar info             ║
+                 ╚══════════════════════════════════════════╝ --}}
             <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
 
                 {{-- Pesanan Aktif Lain --}}
@@ -1199,7 +1449,7 @@
                         <div class="side-label">
                             <span
                                 style="width:6px;height:6px;border-radius:50%;background:#16a34a;
-                                  animation:blink 1.2s infinite;display:inline-block;"></span>
+                                         animation:blink 1.2s infinite;display:inline-block;"></span>
                             Pesanan Aktif ({{ $activeOrders->count() }})
                         </div>
                         <div style="display:flex;flex-direction:column;gap:4px;">
@@ -1214,8 +1464,7 @@
                                             {{ $o->order_code }}
                                         </p>
                                         <p
-                                            style="font-size:10px;color:#94a3b8;margin:0;
-                                       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            style="font-size:10px;color:#94a3b8;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                                             {{ $o->pickup_address }}
                                         </p>
                                     </div>
@@ -1250,7 +1499,7 @@
                             @endforeach
                             <div
                                 style="border-top:1px solid #f1f5f9;padding-top:6px;
-                                display:flex;justify-content:space-between;align-items:center;">
+                                        display:flex;justify-content:space-between;align-items:center;">
                                 <span style="font-size:11px;font-weight:700;color:#475569;">Total</span>
                                 <span style="font-size:14px;font-weight:900;color:#16a34a;">
                                     Rp {{ number_format($selected->total_fare, 0, ',', '.') }}
@@ -1260,31 +1509,32 @@
                     </div>
                 @endif
 
-               
+            </div>
+            {{-- ══ END KOLOM KANAN ══ --}}
 
-            </div>{{-- end right col --}}
+        </div>
+        {{-- ══ END TRACK-GRID ══ --}}
 
-        </div>{{-- end track-grid --}}
-    </div>{{-- end page-wrap --}}
+    </div>
+    {{-- ══ END PAGE-WRAP ══ --}}
+
 
     {{-- ══════════════════════════════════════════════════════
-     FLOATING CHAT
-══════════════════════════════════════════════════════ --}}
-    {{-- ✅ PERBAIKAN: Gunakan $chatEnabled yang sudah didefinisikan sekali di atas --}}
+         FLOATING CHAT
+    ══════════════════════════════════════════════════════ --}}
     @if ($chatEnabled)
         <div id="chatBox">
             {{-- Header --}}
             <div style="background:#16a34a;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0;">
                 <div
                     style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);
-                    display:flex;align-items:center;justify-content:center;
-                    font-weight:900;color:white;font-size:11px;flex-shrink:0;">
+                            display:flex;align-items:center;justify-content:center;
+                            font-weight:900;color:white;font-size:11px;flex-shrink:0;">
                     {{ strtoupper(substr($selected->mitra->name, 0, 1)) }}
                 </div>
                 <div style="flex:1;min-width:0;">
                     <p
-                        style="font-weight:800;color:white;font-size:12px;margin:0;
-                       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        style="font-weight:800;color:white;font-size:12px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                         {{ $selected->mitra->name }}
                     </p>
                     <p style="font-size:10px;color:rgba(255,255,255,.7);margin:0;">
@@ -1292,35 +1542,33 @@
                     </p>
                 </div>
                 <button onclick="toggleChat()"
-                    style="background:none;border:none;color:rgba(255,255,255,.8);
-                       cursor:pointer;font-size:14px;padding:4px;flex-shrink:0;">
+                    style="background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:14px;padding:4px;flex-shrink:0;">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             {{-- Messages --}}
             <div id="chatMessages"></div>
             {{-- Input --}}
-            <div
-                style="padding:8px;border-top:1px solid #e2e8f0;
-                display:flex;gap:6px;background:white;flex-shrink:0;">
+            <div style="padding:8px;border-top:1px solid #e2e8f0;display:flex;gap:6px;background:white;flex-shrink:0;">
                 <input type="text" id="chatInput" placeholder="Ketik pesan..." maxlength="500"
                     style="flex:1;border:1.5px solid #e2e8f0;border-radius:10px;
-                      padding:7px 10px;font-size:12px;outline:none;font-family:inherit;"
+                           padding:7px 10px;font-size:12px;outline:none;font-family:inherit;"
                     onkeydown="if(event.key==='Enter')sendMessage()" onfocus="this.style.borderColor='#16a34a'"
                     onblur="this.style.borderColor='#e2e8f0'">
                 <button onclick="sendMessage()"
                     style="width:34px;height:34px;background:#16a34a;color:white;border:none;
-                       border-radius:10px;cursor:pointer;display:flex;align-items:center;
-                       justify-content:center;flex-shrink:0;">
+                           border-radius:10px;cursor:pointer;display:flex;align-items:center;
+                           justify-content:center;flex-shrink:0;">
                     <i class="fas fa-paper-plane" style="font-size:11px;"></i>
                 </button>
             </div>
         </div>
     @endif
 
+
     {{-- ══════════════════════════════════════════════════════
-     CANCEL MODAL
-══════════════════════════════════════════════════════ --}}
+         CANCEL MODAL
+    ══════════════════════════════════════════════════════ --}}
     @if ($selected && $selected->isCancellable())
         <div id="cancelModal" class="modal-backdrop">
             <div class="modal-box">
@@ -1341,8 +1589,8 @@
                         </label>
                         <select name="cancel_reason" id="cancelReason" required
                             style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;
-                               padding:9px 12px;font-size:12px;outline:none;
-                               background:white;font-family:inherit;">
+                                   padding:9px 12px;font-size:12px;outline:none;
+                                   background:white;font-family:inherit;">
                             <option value="">-- Pilih alasan --</option>
                             <option value="Salah input alamat">Salah input alamat</option>
                             <option value="Ingin mengubah pesanan">Ingin mengubah pesanan</option>
@@ -1354,12 +1602,12 @@
                     <div style="display:flex;gap:8px;">
                         <button type="button" onclick="document.getElementById('cancelModal').classList.remove('open')"
                             style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;
-                               background:white;color:#64748b;font-size:12px;font-weight:700;cursor:pointer;">
+                                   background:white;color:#64748b;font-size:12px;font-weight:700;cursor:pointer;">
                             Kembali
                         </button>
                         <button type="submit"
                             style="flex:1;padding:10px;border-radius:10px;border:none;
-                               background:#ef4444;color:white;font-size:12px;font-weight:700;cursor:pointer;">
+                                   background:#ef4444;color:white;font-size:12px;font-weight:700;cursor:pointer;">
                             Ya, Batalkan
                         </button>
                     </div>
@@ -1368,9 +1616,10 @@
         </div>
     @endif
 
+
     {{-- ══════════════════════════════════════════════════════
-     RATE MODAL
-══════════════════════════════════════════════════════ --}}
+         RATE MODAL
+    ══════════════════════════════════════════════════════ --}}
     @if ($selected && $selected->status === 'completed' && !$selected->customer_rating)
         <div id="rateModal" class="modal-backdrop">
             <div class="modal-box">
@@ -1389,23 +1638,23 @@
                             <button type="button" onclick="setRating({{ $i }})" class="star-btn"
                                 data-val="{{ $i }}"
                                 style="font-size:30px;background:none;border:none;cursor:pointer;
-                               color:#e2e8f0;transition:color .15s,transform .15s;padding:0;">★</button>
+                                       color:#e2e8f0;transition:color .15s,transform .15s;padding:0;">★</button>
                         @endfor
                     </div>
                     <input type="hidden" name="rating" id="ratingInput" value="5">
                     <textarea name="review" rows="2" placeholder="Tulis ulasan (opsional)..."
                         style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;
-                             padding:9px 12px;font-size:12px;outline:none;resize:none;
-                             font-family:inherit;box-sizing:border-box;margin-bottom:12px;"></textarea>
+                               padding:9px 12px;font-size:12px;outline:none;resize:none;
+                               font-family:inherit;box-sizing:border-box;margin-bottom:12px;"></textarea>
                     <div style="display:flex;gap:8px;">
                         <button type="button" onclick="document.getElementById('rateModal').classList.remove('open')"
                             style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;
-                               background:white;color:#64748b;font-size:12px;font-weight:700;cursor:pointer;">
+                                   background:white;color:#64748b;font-size:12px;font-weight:700;cursor:pointer;">
                             Nanti
                         </button>
                         <button type="submit"
                             style="flex:1;padding:10px;border-radius:10px;border:none;
-                               background:#16a34a;color:white;font-size:12px;font-weight:700;cursor:pointer;">
+                                   background:#16a34a;color:white;font-size:12px;font-weight:700;cursor:pointer;">
                             Kirim ⭐
                         </button>
                     </div>
@@ -1429,6 +1678,9 @@
                 });
             }
             setRating(5);
+            document.getElementById('rateModal')?.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('open');
+            });
         </script>
     @endif
 
@@ -1443,22 +1695,13 @@
                 }
                 return confirm('Batalkan {{ $selected->order_code }}?\nAlasan: ' + a);
             }
-            // Close on backdrop click
             document.getElementById('cancelModal')?.addEventListener('click', function(e) {
                 if (e.target === this) this.classList.remove('open');
             });
         </script>
     @endif
 
-    @if ($selected && $selected->status === 'completed' && !$selected->customer_rating)
-        <script>
-            document.getElementById('rateModal')?.addEventListener('click', function(e) {
-                if (e.target === this) this.classList.remove('open');
-            });
-        </script>
-    @endif
-
-    {{-- ✅ PERBAIKAN: Chat script cukup satu kondisi, gunakan $chatEnabled --}}
+    {{-- Chat --}}
     @if ($chatEnabled)
         <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
         <script>
@@ -1487,15 +1730,18 @@
 
             function checkUnread() {
                 fetch('/chat/' + CHAT_ORDER_ID + '/unread-count', {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                }).then(r => r.json()).then(d => {
-                    if (d.unread > 0) {
-                        unreadCount = d.unread;
-                        updateBadge();
-                    }
-                }).catch(() => {});
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.unread > 0) {
+                            unreadCount = d.unread;
+                            updateBadge();
+                        }
+                    })
+                    .catch(() => {});
             }
 
             function toggleChat() {
@@ -1513,23 +1759,26 @@
 
             function loadMsgs() {
                 fetch('/chat/' + CHAT_ORDER_ID + '/messages', {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                }).then(r => r.json()).then(msgs => {
-                    const c = document.getElementById('chatMessages');
-                    c.innerHTML = '';
-                    if (!msgs.length) {
-                        c.innerHTML =
-                            '<div style="text-align:center;color:#94a3b8;font-size:11px;padding:20px 0;">Belum ada pesan 👋</div>';
-                        return;
-                    }
-                    msgs.forEach(m => appendMsg(m, m.is_mine));
-                    scrollBot();
-                }).catch(() => {
-                    document.getElementById('chatMessages').innerHTML =
-                        '<div style="text-align:center;color:#ef4444;font-size:11px;padding:20px 0;">Gagal memuat.</div>';
-                });
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(msgs => {
+                        const c = document.getElementById('chatMessages');
+                        c.innerHTML = '';
+                        if (!msgs.length) {
+                            c.innerHTML =
+                                '<div style="text-align:center;color:#94a3b8;font-size:11px;padding:20px 0;">Belum ada pesan 👋</div>';
+                            return;
+                        }
+                        msgs.forEach(m => appendMsg(m, m.is_mine));
+                        scrollBot();
+                    })
+                    .catch(() => {
+                        document.getElementById('chatMessages').innerHTML =
+                            '<div style="text-align:center;color:#ef4444;font-size:11px;padding:20px 0;">Gagal memuat.</div>';
+                    });
             }
 
             function appendMsg(data, isMine) {
@@ -1537,9 +1786,9 @@
                 const w = document.createElement('div');
                 w.style.cssText = 'display:flex;flex-direction:column;align-items:' + (isMine ? 'flex-end' : 'flex-start');
                 w.innerHTML = `${isMine ? '' : `<div class="cb-name">${esc(data.sender_name)}</div>`}
-        <div class="cb ${isMine ? 'mine' : 'theirs'}">
-            ${esc(data.message)}<div class="cb-time">${data.time}</div>
-        </div>`;
+                    <div class="cb ${isMine ? 'mine' : 'theirs'}">
+                        ${esc(data.message)}<div class="cb-time">${data.time}</div>
+                    </div>`;
                 c.appendChild(w);
                 scrollBot();
             }
@@ -1551,24 +1800,27 @@
                 inp.value = '';
                 inp.disabled = true;
                 fetch('/chat/' + CHAT_ORDER_ID + '/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                    body: JSON.stringify({
-                        message: msg
-                    }),
-                }).then(r => r.json()).then(d => {
-                    appendMsg(d, true);
-                    inp.disabled = false;
-                    inp.focus();
-                }).catch(() => {
-                    inp.disabled = false;
-                    inp.value = msg;
-                    alert('Gagal mengirim.');
-                });
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({
+                            message: msg
+                        }),
+                    })
+                    .then(r => r.json())
+                    .then(d => {
+                        appendMsg(d, true);
+                        inp.disabled = false;
+                        inp.focus();
+                    })
+                    .catch(() => {
+                        inp.disabled = false;
+                        inp.value = msg;
+                        alert('Gagal mengirim.');
+                    });
             }
 
             function scrollBot() {

@@ -10,21 +10,22 @@ class Order extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'order_code', 'customer_id', 'mitra_id',
-        'service_type', 'vehicle_type',
-        'pickup_address', 'pickup_lat', 'pickup_lng',
-        'destination_address', 'destination_lat', 'destination_lng',
-        'item_type', 'item_weight', 'notes',
-        'distance_km', 'base_fare', 'distance_fare', 'service_fee',
-        'total_fare', 'platform_fee', 'mitra_earning',
-        'status', 'payment_method', 'payment_status',
-        'payment_proof', 'paid_at', 'paid_by',
-        'customer_rating', 'customer_review',
-        'accepted_at', 'picked_up_at', 'delivered_at',
-        'completed_at', 'cancelled_at', 'cancel_reason', 'cancelled_by',
-        'on_the_way_at', 'arrived_at'
-    ];
+   protected $fillable = [
+    'order_code', 'customer_id', 'mitra_id',
+    'service_type', 'vehicle_type',
+    'pickup_address', 'pickup_lat', 'pickup_lng',
+    'destination_address', 'destination_lat', 'destination_lng',
+    'item_type', 'item_weight', 'notes',
+    'distance_km', 'base_fare', 'distance_fare', 'service_fee',
+    'total_fare', 'platform_fee', 'mitra_earning',
+    'status', 'payment_method', 'payment_status',
+    'payment_proof', 'paid_at', 'paid_by',
+    'bank_selected', 'ewallet_selected', // ← tambahkan ini
+    'customer_rating', 'customer_review',
+    'accepted_at', 'picked_up_at', 'delivered_at',
+    'completed_at', 'cancelled_at', 'cancel_reason', 'cancelled_by',
+    'on_the_way_at', 'arrived_at'
+];
 
     protected $casts = [
         'accepted_at'   => 'datetime',

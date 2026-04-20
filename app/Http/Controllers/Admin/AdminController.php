@@ -395,18 +395,62 @@ public function processAll(Request $request)
     $period = $request->get('period', 'week');
     $results = [];
 
+    // Tentukan rentang tanggal berdasarkan period
+    $startDate = match($period) {
+        'today' => now()->startOfDay(),
+        'week'  => now()->startOfWeek(),
+        'month' => now()->startOfMonth(),
+    };
+
     User::where('role', 'mitra')
         ->where('is_active', true)
-        ->each(function ($user) use ($period, &$results) {
+        ->each(function ($user) use ($period, $startDate, &$results) {
             $bonus = app(BonusService::class)->calculate($user, $period);
-            $results[] = [
-                'mitra'       => $user->name,
-                'order_count' => $bonus['order_count'],
-                'tier'        => $bonus['tier'],
-                'total_bonus' => $bonus['total_bonus'],
-            ];
+
+            if ($bonus['total_bonus'] > 0) {
+                // ✅ Cek apakah bonus periode ini sudah pernah diproses
+                $alreadyProcessed = MitraEarning::where('mitra_id', $user->id)
+                    ->where('type', 'bonus')
+                    ->where('period', $period)
+                    ->whereDate('earned_date', '>=', $startDate)
+                    ->exists();
+
+                if (!$alreadyProcessed) {
+                    MitraEarning::create([
+                        'mitra_id'     => $user->id,
+                        'type'         => 'bonus',
+                        'bonus'        => $bonus['total_bonus'],
+                        'net_amount'   => 0,
+                        'gross_amount' => 0,
+                        'platform_fee' => 0,
+                        'period'       => $period,
+                        'earned_date'  => now(),
+                        'note'         => 'Bonus performa tier ' . $bonus['tier'],
+                    ]);
+
+                    $results[] = [
+                        'mitra'       => $user->name,
+                        'order_count' => $bonus['order_count'],
+                        'tier'        => $bonus['tier'],
+                        'total_bonus' => $bonus['total_bonus'],
+                        'status'      => 'dicairkan',
+                    ];
+                } else {
+                    $results[] = [
+                        'mitra'       => $user->name,
+                        'order_count' => $bonus['order_count'],
+                        'tier'        => $bonus['tier'],
+                        'total_bonus' => $bonus['total_bonus'],
+                        'status'      => 'sudah dicairkan', // ⚠️ skip
+                    ];
+                }
+            }
         });
 
-  
+    $dicairkan = collect($results)->where('status', 'dicairkan')->count();
+    $skip      = collect($results)->where('status', 'sudah dicairkan')->count();
+
+    return redirect()->route('admin.bonus.index')
+        ->with('success', "Proses selesai: {$dicairkan} bonus dicairkan, {$skip} mitra sudah dicairkan sebelumnya.");
 }
 }
